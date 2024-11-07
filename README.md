@@ -14,7 +14,22 @@ Since the data was almost already in the right format, The next most important t
 ### Exploratory Data Analysis
 EDA involves eploring the dataset to answer questions related to:
 - How much did we sell monthly? To analyze monthly order and sales trends in order to identify Seasonality and peak Sales periods.
-- Which product categories brought in the most and least revenue and how does this relate to orders?
+- Which product categories and brand brought in the most and least revenue and how does this relate to orders?
 - Which of the store department brought in the most revenue?
 - Where is our customers ordering From?
-  
+
+;;; 
+  sql
+SELECT FORMAT_DATE('%B', DATE(oi.created_at)) AS month,
+COUNT(oi.order_id) AS order_count, 
+ROUND(SUM(sale_price * num_of_item),1) AS Revenue,
+COUNT(DISTINCT oi.user_id) AS customers
+FROM `bigquery-public-data.thelook_ecommerce.order_items` 
+AS oi
+INNER JOIN `bigquery-public-data.thelook_ecommerce.orders` 
+AS o
+ON oi.order_id = o.order_id
+WHERE oi.status NOT IN ('Cancelled', 'Returned') AND EXTRACT(year FROM oi.created_at) = 2023
+GROUP BY month
+ORDER BY order_count DESC;
+;;;
